@@ -1,3 +1,4 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+- Initial implementation of basic audio playback functionality.
+- Integrated audio focus management.
