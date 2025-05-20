@@ -1,19 +1,36 @@
-# Run with `dart run ffigen --config ffigen.yaml`.
-name: UAudioBindings
-description: |
-  Bindings for `src/u_audio.h`.
+output: lib/src/gen/ffigen_bindings.dart
 
-  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/u_audio_bindings_generated.dart'
+# The C headers or libraries you want to bind. Point at a header that
+# `#include`s your metadata/playback headers (and transitively,
+# the FFmpeg headers).
 headers:
   entry-points:
-    - 'src/u_audio.h'
-  include-directives:
-    - 'src/u_audio.h'
-preamble: |
-  // ignore_for_file: always_specify_types
-  // ignore_for_file: camel_case_types
-  // ignore_for_file: non_constant_identifier_names
-comments:
-  style: any
-  length: full
+    - src/metadata/ffmpeg_metadata.h
+    - src/playback/opensl_playback.h
+
+# Where the underlying .so files live at build time (for header discovery)
+compiler-opts:
+  # For Android, include your ffmpeg headers
+  - -I${PROJECT_ROOT}/src/include
+
+# Only generate bindings for the functions/types you care about
+# This keeps the Dart output lean.
+symbols:
+  functions:
+    # metadata
+    - ffmpeg_open_media
+    - ffmpeg_close_media
+    - ffmpeg_get_tag
+    - ffmpeg_get_duration
+    - ffmpeg_get_artwork
+    # playback
+    - ffmpeg_init_decoder
+    - ffmpeg_fill_pcm_buffer
+    - ffmpeg_start_playback
+    - ffmpeg_stop_playback
+  enums:
+    - AVDisposition
+  structs:
+    - AVFormatContext
+    - AVStream
+    - AVPacket
