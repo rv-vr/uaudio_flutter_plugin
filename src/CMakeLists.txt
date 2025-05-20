@@ -6,13 +6,15 @@ include_directories(
 )
 
 add_library(ffmpeg_metadata SHARED
-     ${CMAKE_SOURCE_DIR}/metadata/ffmpeg_metadata.c
+    ${CMAKE_SOURCE_DIR}/metadata/ffmpeg_metadata.c
 )
 target_link_libraries(ffmpeg_metadata
     ${CMAKE_SOURCE_DIR}/../android/src/main/jniLibs/${ANDROID_ABI}/libavformat.so
     ${CMAKE_SOURCE_DIR}/../android/src/main/jniLibs/${ANDROID_ABI}/libavutil.so
+    ${CMAKE_SOURCE_DIR}/../android/src/main/jniLibs/${ANDROID_ABI}/libavcodec.so
     log
 )
+
 
 add_library(ffmpeg_playback SHARED
     ${CMAKE_SOURCE_DIR}/playback/ffmpeg_decoder.c
