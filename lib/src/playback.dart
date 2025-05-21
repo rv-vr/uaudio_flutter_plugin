@@ -1,42 +1,31 @@
 part of uaudio_plugin;
 
-
 class PlaybackHandler {
-  static const MethodChannel _focusChannel =
-      MethodChannel('com.unotes.uaudio/audio_focus');
+  static const MethodChannel _channel =
+      MethodChannel('com.unotes.uaudio/playback');
 
-  static Future<bool> requestAudioFocus() async {
-    final bool granted = await _focusChannel.invokeMethod('requestFocus');
-    return granted;
+  /// Starts playback (and requests audio focus under the hood).
+  static Future<void> start(String path) =>
+      _channel.invokeMethod('start', {'path': path});
+
+  /// Pauses playback on focus loss or user request.
+  static Future<void> pause() =>
+      _channel.invokeMethod('pause');
+
+  /// Resumes playback on focus gain or user request.
+  static Future<void> resume() =>
+      _channel.invokeMethod('resume');
+
+  /// Stops playback and abandons audio focus.
+  static Future<void> stop() =>
+      _channel.invokeMethod('stop');
+
+  /// Seek to the given position (in milliseconds).
+  static Future<int> seek(int positionMs) async {
+    final result = await _channel.invokeMethod<int>('seek', {
+      'position': positionMs,
+    });
+    return result ?? -1;
   }
 
-  static Future<void> abandonAudioFocus() async {
-    await _focusChannel.invokeMethod('releaseFocus');
-  }
-}
-
-void startPlayback(String path) {
-  final ptr = path.toNativeUtf8();
-  _ffmpegStart(ptr);
-  calloc.free(ptr);
-}
-
-void stopPlayback() {
-  _ffmpegStop();
-}
-
-Future<void> pausePlayback() async {
-  _ffmpegPause();
-}
-
-Future<void> resumePlayback() async {
-  _ffmpegResume();
-}
-
-
-Future<void> seekTo(int milliseconds) async {
-  final result = _ffmpegSeekTo(milliseconds);
-  if (result != 0) {
-    throw Exception('Seek failed with code $result');
-  }
 }
