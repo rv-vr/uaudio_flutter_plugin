@@ -2,7 +2,6 @@
 #include "ffmpeg_decoder.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
-#include "uaudio_jni.h"
 
 #define PCM_BUFFER_SIZE  (2048*2)
 static int16_t pcm_bufs[2][PCM_BUFFER_SIZE];
@@ -21,13 +20,16 @@ static void bq_cb(SLAndroidSimpleBufferQueueItf bq, void* ctx) {
     enqueue_buf();
 }
 
-void ffmpeg_start_playback(const char* filepath) {
+int ffmpeg_start_playback(const char* filepath) {
 
     if (playerPlay != NULL) {
         ffmpeg_stop_playback();
     }
 
-    ffmpeg_init_decoder(filepath);
+    int ret = ffmpeg_init_decoder(filepath);
+    if (ret < 0) {
+        return ret;  // propagate the error to caller
+    }
 
     slCreateEngine(&engineObj, 0, NULL, 0, NULL, NULL);
     (*engineObj)->Realize(engineObj, SL_BOOLEAN_FALSE);
@@ -66,6 +68,8 @@ void ffmpeg_start_playback(const char* filepath) {
 
     enqueue_buf();
     (*playerPlay)->SetPlayState(playerPlay, SL_PLAYSTATE_PLAYING);
+
+    return 0;
 }
 
 static void enqueue_buf() {
@@ -107,7 +111,3 @@ void ffmpeg_resume_playback() {
     }
 }
 
-
-JNIEXPORT void JNICALL Java_com_unites_uaudio_AudioFocusHandler_nativePausePlayback(JNIEnv* env, jobject thiz) {
-    ffmpeg_stop_playback(); 
-}

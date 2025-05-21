@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-void ffmpeg_start_playback(const char* filepath);
+int ffmpeg_start_playback(const char* filepath);
 
 void ffmpeg_stop_playback();
 
