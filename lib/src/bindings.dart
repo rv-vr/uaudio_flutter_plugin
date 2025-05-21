@@ -21,15 +21,6 @@ final _StopD _ffmpegStop = _playLib
     .lookup<NativeFunction<_StopC>>('ffmpeg_stop_playback')
     .asFunction();
 
-void startPlayback(String path) {
-  final ptr = path.toNativeUtf8();
-  _ffmpegStart(ptr);
-  calloc.free(ptr);
-}
-
-void stopPlayback() {
-  _ffmpegStop();
-}
 
 // Private C↔Dart typedefs and lookup functions for metadata
 typedef _OpenC = Int32 Function(Pointer<Utf8>);
@@ -95,3 +86,7 @@ typedef _GetCFd = Pointer<Utf8> Function();
 final _GetCFd _ffmpegGetContainerFormat = _metaLib
     .lookup<NativeFunction<_GetCFc>>('ffmpeg_get_container_format')
     .asFunction();
+
+
+final _ffmpegSeekTo = _playLib
+    .lookupFunction<Int32 Function(Int64), int Function(int)>('ffmpeg_seek_to');

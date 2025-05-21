@@ -14,3 +14,20 @@ class PlaybackHandler {
     await _focusChannel.invokeMethod('releaseFocus');
   }
 }
+
+void startPlayback(String path) {
+  final ptr = path.toNativeUtf8();
+  _ffmpegStart(ptr);
+  calloc.free(ptr);
+}
+
+void stopPlayback() {
+  _ffmpegStop();
+}
+
+Future<void> seekTo(int milliseconds) async {
+  final result = _ffmpegSeekTo(milliseconds);
+  if (result != 0) {
+    throw Exception('Seek failed with code $result');
+  }
+}

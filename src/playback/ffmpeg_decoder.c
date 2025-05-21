@@ -81,6 +81,27 @@ int ffmpeg_fill_pcm_buffer(int16_t* outBuf, int max_samples) {
     return out_count;
 }
 
+int ffmpeg_seek_to(int64_t ms) {
+    if (!g_fmt_ctx || g_stream_idx < 0)
+        return -1;
+
+    int64_t ts = (ms * AV_TIME_BASE) / 1000;
+
+    // Seek
+    if (av_seek_frame(g_fmt_ctx, -1, ts, AVSEEK_FLAG_BACKWARD) < 0) {
+        return -2;
+    }
+
+    // Flush decoder buffers
+    avcodec_flush_buffers(g_dec_ctx);
+
+    // ❌ DON'T free swr_ctx unless you recreate it properly
+    // if (g_swr_ctx) swr_free(&g_swr_ctx);
+
+    return 0;
+}
+
+
 void ffmpeg_cleanup(void) {
     if (g_frame)    { av_frame_free(&g_frame);       g_frame   = NULL; }
     if (g_pkt)      { av_packet_free(&g_pkt);        g_pkt     = NULL; }
