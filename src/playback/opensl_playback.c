@@ -95,6 +95,18 @@ void ffmpeg_stop_playback() {
     ffmpeg_cleanup();
 }
 
+void ffmpeg_pause_playback() {
+    if (playerPlay) {
+        (*playerPlay)->SetPlayState(playerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void ffmpeg_resume_playback() {
+    if (playerPlay) {
+        (*playerPlay)->SetPlayState(playerPlay, SL_PLAYSTATE_PLAYING);
+    }
+}
+
 
 JNIEXPORT void JNICALL Java_com_unites_uaudio_AudioFocusHandler_nativePausePlayback(JNIEnv* env, jobject thiz) {
     ffmpeg_stop_playback(); 

@@ -87,6 +87,11 @@ final _GetCFd _ffmpegGetContainerFormat = _metaLib
     .lookup<NativeFunction<_GetCFc>>('ffmpeg_get_container_format')
     .asFunction();
 
-
 final _ffmpegSeekTo = _playLib
     .lookupFunction<Int32 Function(Int64), int Function(int)>('ffmpeg_seek_to');
+
+final _ffmpegPause = _playLib
+    .lookupFunction<Void Function(), void Function()>('ffmpeg_pause_playback');
+
+final _ffmpegResume = _playLib
+    .lookupFunction<Void Function(), void Function()>('ffmpeg_resume_playback');

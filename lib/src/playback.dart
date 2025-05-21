@@ -25,6 +25,15 @@ void stopPlayback() {
   _ffmpegStop();
 }
 
+Future<void> pausePlayBack() async {
+  _ffmpegPause();
+}
+
+Future<void> resumePlayBack() async {
+  _ffmpegResume();
+}
+
+
 Future<void> seekTo(int milliseconds) async {
   final result = _ffmpegSeekTo(milliseconds);
   if (result != 0) {

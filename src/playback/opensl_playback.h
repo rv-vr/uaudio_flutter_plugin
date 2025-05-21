@@ -8,8 +8,11 @@ extern "C" {
 
 void ffmpeg_start_playback(const char* filepath);
 
-
 void ffmpeg_stop_playback();
+
+void ffmpeg_pause_playback();
+
+void ffmpeg_resume_playback();
 
 #ifdef __cplusplus
 }
