@@ -29,50 +29,104 @@ To integrate `uaudio` into your Flutter project, follow these steps:
 
 ## Functions
 
-**`int getMediaDuration(String path)`**  
-  Retrieves the duration of an audio file (in seconds) from the specified file path.
+The following Dart methods are available via the `PlaybackHandler` class.  
+**Audio focus is managed automatically on the native (Kotlin) side; you do not need to request or abandon audio focus manually.**
 
-**`void startPlayback(String path)`**  
-  Initiates playback of the audio file located at the specified path.
+### PlaybackHandler Methods
 
-**`void stopPlayback()`**  
-  Stops the currently playing audio.
+- **`Future<void> start(String path)`**  
+  Starts playback of the audio file at the given path. Automatically requests audio focus.
 
- **`Future<void> pausePlayback()`**  
-  Pauses the currently playing audio.
+- **`Future<void> pause()`**  
+  Pauses playback. May also be triggered by audio focus loss.
 
-**`Future<void> resumePlayback()`**  
-  Resumes the currently paused audio.
+- **`Future<void> resume()`**  
+  Resumes playback. May also be triggered by audio focus gain.
 
-**`Future<MediaInfo> getMediaInfo(String path)`**  
-  Extracts metadata from URI and returns a `MediaInfo` class.
+- **`Future<void> stop()`**  
+  Stops playback and abandons audio focus.
 
-  The `MediaInfo` class contains the following properties:
+- **`Future<int> seek(int positionMs)`**  
+  Seeks to the specified position (in milliseconds) in the current audio track.
 
-  - **`int duration`**: The duration of the audio file in seconds.
-  - **`int sampleRate`**: The sample rate of the audio file in Hz.
-  - **`int bitRate`**: The bit rate of the audio file in kbps.
-  - **`String audioCodec`**: The audio codec used for encoding the file.
-  - **`String container`**: The container format of the audio file.
-  - **`String title`**: The title of the audio file.
-  - **`String artist`**: The artist of the audio file.
-  - **`String album`**: The album name of the audio file.
-  - **`String genre`**: The genre of the audio file.
-  - **`String year`**: The year the audio file was released.
-  - **`Uint8List artwork`**: The artwork image data associated with the audio file.
+### MediaInfo Methods
 
+- **`Future<MediaInfo> getMediaInfo(String path)`**  
+  Extracts metadata from the specified file path and returns a `MediaInfo` object.
 
-### `PlaybackHandler` Class
+  The `MediaInfo` class contains:
+  - `int duration`
+  - `int sampleRate`
+  - `int bitRate`
+  - `String audioCodec`
+  - `String container`
+  - `String title`
+  - `String artist`
+  - `String album`
+  - `String genre`
+  - `String year`
+  - `Uint8List artwork`
 
-The `PlaybackHandler` class manages Android's native **AudioFocus** system, ensuring smooth audio transitions and focus management.
+---
 
-- **`Future<bool> requestAudioFocus()`**  
-  Requests audio focus, muting other audio sources and prioritizing the playback of the current audio.
+## Example Implementation
 
-- **`Future<void> abandonAudioFocus()`**  
-  Releases audio focus, allowing other applications to resume their audio playback.
+Below is a minimal example of how to use `PlaybackHandler` in your Flutter app:
 
-## Libraries and Dependencies
+```dart
+import 'package:flutter/material.dart';
+import 'package:uaudio/uaudio.dart';
+
+class AudioPlayerExample extends StatelessWidget {
+  final String path = "/sdcard/Music/sample.mp3";
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () async {
+            try {
+              await PlaybackHandler.start(path);
+            } catch (e) {
+              print('Failed to start playback: $e');
+            }
+          },
+          child: Text('Play'),
+        ),
+        ElevatedButton(
+          onPressed: () => PlaybackHandler.pause(),
+          child: Text('Pause'),
+        ),
+        ElevatedButton(
+          onPressed: () => PlaybackHandler.resume(),
+          child: Text('Resume'),
+        ),
+        ElevatedButton(
+          onPressed: () => PlaybackHandler.stop(),
+          child: Text('Stop'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final code = await PlaybackHandler.seek(30000); // Seek to 30s
+            print('Seek result: $code');
+          },
+          child: Text('Seek to 30s'),
+        ),
+      ],
+    );
+  }
+}
+```
+
+**Note:**  
+- Audio focus is handled automatically; you do not need to manage it in Dart.
+- Make sure to request storage permissions if accessing files on device storage.
+
+---
+
+For more details, see the [full example in `main.dart`](lib/main.dart).
+## Libraries used
 
 ### Audio Processing
 
