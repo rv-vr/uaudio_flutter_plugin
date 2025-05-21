@@ -25,11 +25,11 @@ void stopPlayback() {
   _ffmpegStop();
 }
 
-Future<void> pausePlayBack() async {
+Future<void> pausePlayback() async {
   _ffmpegPause();
 }
 
-Future<void> resumePlayBack() async {
+Future<void> resumePlayback() async {
   _ffmpegResume();
 }
 
