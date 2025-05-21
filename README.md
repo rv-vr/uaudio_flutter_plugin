@@ -1,6 +1,6 @@
-# u_audio
+# uaudio
 
-A Flutter-based audio component designed for **U-Notes**, a music player application. This library provides essential audio playback functionality and integrates seamlessly with Android's native audio systems.
+A Flutter-based audio component designed for **U-Notes**, a music player application. This library provides essential audio playback functionality and integrates seamlessly with Android's native audio systems. 
 
 ## Supported Platforms
 
@@ -8,11 +8,11 @@ A Flutter-based audio component designed for **U-Notes**, a music player applica
 
 ## Installation
 
-To integrate `u_audio` into your Flutter project, follow these steps:
+To integrate `uaudio` into your Flutter project, follow these steps:
 
 1. Clone the repository into the same directory as your project:
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/rv-vr/uaudio.git
    ```
 
 2. Add the plugin to your project's `pubspec.yaml` file:
@@ -27,18 +27,40 @@ To integrate `u_audio` into your Flutter project, follow these steps:
    flutter pub get
    ```
 
-## Features
+## Functions
 
-### Core Functions
-
-- **`int getMediaDuration(String path)`**  
+**`int getMediaDuration(String path)`**  
   Retrieves the duration of an audio file (in seconds) from the specified file path.
 
-- **`void startPlayback(String path)`**  
+**`void startPlayback(String path)`**  
   Initiates playback of the audio file located at the specified path.
 
-- **`void stopPlayback()`**  
+**`void stopPlayback()`**  
   Stops the currently playing audio.
+
+ **`Future<void> pausePlayback()`**  
+  Pauses the currently playing audio.
+
+**`Future<void> resumePlayback()`**  
+  Resumes the currently paused audio.
+
+**`Future<MediaInfo> getMediaInfo(String path)`**  
+  Extracts metadata from URI and returns a `MediaInfo` class.
+
+  The `MediaInfo` class contains the following properties:
+
+  - **`int duration`**: The duration of the audio file in seconds.
+  - **`int sampleRate`**: The sample rate of the audio file in Hz.
+  - **`int bitRate`**: The bit rate of the audio file in kbps.
+  - **`String audioCodec`**: The audio codec used for encoding the file.
+  - **`String container`**: The container format of the audio file.
+  - **`String title`**: The title of the audio file.
+  - **`String artist`**: The artist of the audio file.
+  - **`String album`**: The album name of the audio file.
+  - **`String genre`**: The genre of the audio file.
+  - **`String year`**: The year the audio file was released.
+  - **`Uint8List artwork`**: The artwork image data associated with the audio file.
+
 
 ### `PlaybackHandler` Class
 
@@ -83,4 +105,4 @@ The following tools are required for building and maintaining this library:
 
 ---
 
-For additional details or contributions, please refer to the repository's [documentation](./docs) or contact the maintainers.
+For additional details or contributions, please refer to the repository's [documentation](https://github.com/example/uaudio/docs) or contact the maintainers.
