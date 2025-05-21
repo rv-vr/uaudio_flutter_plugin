@@ -13,6 +13,7 @@ static SwrContext*      g_swr_ctx = NULL;
 static int              g_stream_idx = -1;
 static AVPacket*        g_pkt = NULL;
 static AVFrame*         g_frame = NULL;
+static int64_t g_current_pts_ms = 0;
 
 int ffmpeg_init_decoder(const char* filepath) {
     int ret;
@@ -77,6 +78,14 @@ int ffmpeg_fill_pcm_buffer(int16_t* outBuf, int max_samples) {
         if (g_pkt->stream_index == g_stream_idx) {
             avcodec_send_packet(g_dec_ctx, g_pkt);
             if (avcodec_receive_frame(g_dec_ctx, g_frame) == 0) {
+
+                 g_current_pts_ms = av_rescale_q(
+                    g_frame->pts,
+                    g_fmt_ctx->streams[g_stream_idx]->time_base,
+                    (AVRational){1, 1000}
+                );
+
+
                 int samples_converted = swr_convert(
                     g_swr_ctx,
                     out_planes,         
@@ -121,3 +130,8 @@ void ffmpeg_cleanup(void) {
     if (g_fmt_ctx)  { avformat_close_input(&g_fmt_ctx); g_fmt_ctx = NULL; }
     g_stream_idx = -1;
 }
+
+int ffmpeg_get_current_position() {
+    return (int)g_current_pts_ms;
+}
+
