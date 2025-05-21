@@ -14,14 +14,23 @@ static int              g_stream_idx = -1;
 static AVPacket*        g_pkt = NULL;
 static AVFrame*         g_frame = NULL;
 
-void ffmpeg_init_decoder(const char* filepath) {
+int ffmpeg_init_decoder(const char* filepath) {
+    int ret;
+
     strncpy(g_filepath, filepath, sizeof(g_filepath)-1);
     g_filepath[sizeof(g_filepath)-1] = '\0';
 
     avformat_network_init();
-    g_fmt_ctx = avformat_alloc_context();
-    avformat_open_input(&g_fmt_ctx, g_filepath, NULL, NULL);
-    avformat_find_stream_info(g_fmt_ctx, NULL);
+    g_fmt_ctx = NULL;
+    if ((ret = avformat_open_input(&g_fmt_ctx, filepath, NULL, NULL)) < 0) {
+        return ret;  // e.g. AVERROR(ENOENT) or other
+    }
+    if ((ret = avformat_find_stream_info(g_fmt_ctx, NULL)) < 0) {
+        avformat_close_input(&g_fmt_ctx);
+        g_fmt_ctx = NULL;
+        return ret;
+    }
+
 
     g_stream_idx = av_find_best_stream(
         g_fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0
@@ -53,6 +62,8 @@ void ffmpeg_init_decoder(const char* filepath) {
 
     g_pkt   = av_packet_alloc();
     g_frame = av_frame_alloc();
+
+    return 0;
 }
 
 int ffmpeg_fill_pcm_buffer(int16_t* outBuf, int max_samples) {

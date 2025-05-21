@@ -19,6 +19,7 @@ target_link_libraries(ffmpeg_metadata
 add_library(ffmpeg_playback SHARED
     ${CMAKE_SOURCE_DIR}/playback/ffmpeg_decoder.c
     ${CMAKE_SOURCE_DIR}/playback/opensl_playback.c
+    ${CMAKE_SOURCE_DIR}/playback/playback_jni.c
 )
 
 target_link_libraries(ffmpeg_playback
