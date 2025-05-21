@@ -30,8 +30,7 @@ class PlaybackHandler {
 
   // Get current position in milliseconds
   static Future<int> getCurrentPosition() async {
-    final result = await _channel.invokeMethod<int>('getCurrentPosition');
-    return result ?? -1;
+    return await _channel.invokeMethod('getCurrentPosition') ?? 0;
   }
 
 }

@@ -4,10 +4,6 @@ final DynamicLibrary _metaLib = Platform.isAndroid
     ? DynamicLibrary.open('libffmpeg_metadata.so')
     : DynamicLibrary.process();
 
-final DynamicLibrary _playLib = Platform.isAndroid
-    ? DynamicLibrary.open('libffmpeg_playback.so')
-    : DynamicLibrary.process();
-
 
 // Private C↔Dart typedefs and lookup functions for metadata
 typedef _OpenC = Int32 Function(Pointer<Utf8>);
@@ -74,9 +70,4 @@ final _GetCFd _ffmpegGetContainerFormat = _metaLib
     .lookup<NativeFunction<_GetCFc>>('ffmpeg_get_container_format')
     .asFunction();
 
-typedef _GetPosC = Int32 Function();
-typedef _GetPosD = int Function();
-final _ffmpegGetCurrentPosition = _playLib
-    .lookup<NativeFunction<_GetPosC>>('ffmpeg_get_current_position')
-    .asFunction<_GetPosD>();
 

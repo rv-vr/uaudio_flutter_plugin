@@ -10,17 +10,12 @@ import io.flutter.plugin.common.MethodChannel
 
 class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
   private lateinit var channel: MethodChannel
-
-  // Audio focus components
   private lateinit var audioManager: AudioManager
   private lateinit var focusRequest: AudioFocusRequest
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    // 1) Set up shared MethodChannel
     channel = MethodChannel(binding.binaryMessenger, "com.unotes.uaudio/playback")
     channel.setMethodCallHandler(this)
-
-    // 2) Configure AudioManager & focus listener
     setupAudioFocus(binding.applicationContext)
   }
 
@@ -29,11 +24,8 @@ class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
       "start" -> {
         val path = call.argument<String>("path")!!
         val started = startWithFocus(path)
-        if (!started) {
-            result.error("AUDIO_FOCUS_FAILED", "Could not gain audio focus", null)
-        } else {
-            result.success(null)
-        }
+        if (!started) result.error("AUDIO_FOCUS_FAILED", "Could not gain audio focus", null)
+        else result.success(null)
       }
       "pause" -> {
         nativePausePlayback()
@@ -49,9 +41,14 @@ class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         result.success(null)
       }
       "seek" -> {
-        val positionMs = call.argument<Int>("position") ?: 0
-        val resultCode = nativeSeek(positionMs)
-        result.success(resultCode)
+        val pos = call.argument<Int>("position") ?: 0
+        val code = nativeSeek(pos)
+        result.success(code)
+      }
+      "getCurrentPosition" -> {
+        // call the JNI bridge directly:
+        val posMs = nativeGetCurrentPosition()
+        result.success(posMs)
       }
       else -> result.notImplemented()
     }
@@ -61,21 +58,17 @@ class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     channel.setMethodCallHandler(null)
   }
 
-  // ================= Audio Focus Setup =================
+  // ─── Audio Focus Setup ────────────────────────────────────────────────────
 
   private fun setupAudioFocus(context: Context) {
     audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-    val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
+    val listener = AudioManager.OnAudioFocusChangeListener { change ->
       when (change) {
         AudioManager.AUDIOFOCUS_LOSS,
-        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
-          nativePausePlayback()
-        AudioManager.AUDIOFOCUS_GAIN ->
-          nativeResumePlayback()
+        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> nativePausePlayback()
+        AudioManager.AUDIOFOCUS_GAIN -> nativeResumePlayback()
       }
     }
-
     focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
       .setAudioAttributes(
         AudioAttributes.Builder()
@@ -83,30 +76,24 @@ class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
           .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
           .build()
       )
-      .setOnAudioFocusChangeListener(focusListener)
+      .setOnAudioFocusChangeListener(listener)
       .build()
   }
 
   private fun startWithFocus(path: String): Boolean {
     val granted = audioManager.requestAudioFocus(focusRequest) ==
                   AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-    if (granted) {
-        val err = nativeStartPlayback(path)
-        return err == 0
-    }
-    return false
+    return if (granted) nativeStartPlayback(path) == 0 else false
   }
 
   private fun abandonAudioFocus() {
     audioManager.abandonAudioFocusRequest(focusRequest)
   }
 
-  // ================ JNI / Native Methods ================
+  // ─── JNI / Native Methods ────────────────────────────────────────────────
 
   companion object {
-    init {
-      System.loadLibrary("ffmpeg_playback")
-    }
+    init { System.loadLibrary("ffmpeg_playback") }
   }
 
   private external fun nativeStartPlayback(path: String): Int
@@ -114,4 +101,5 @@ class UAudioPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
   private external fun nativeResumePlayback()
   private external fun nativeStopPlayback()
   private external fun nativeSeek(positionMs: Int): Int
+  private external fun nativeGetCurrentPosition(): Long
 }

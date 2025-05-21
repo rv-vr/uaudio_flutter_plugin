@@ -13,7 +13,7 @@ static SwrContext*      g_swr_ctx = NULL;
 static int              g_stream_idx = -1;
 static AVPacket*        g_pkt = NULL;
 static AVFrame*         g_frame = NULL;
-static int64_t g_current_pts_ms = 0;
+int64_t g_current_pts_ms = 0;
 
 int ffmpeg_init_decoder(const char* filepath) {
     int ret;

@@ -37,3 +37,10 @@ Java_com_unotes_uaudio_UAudioPlugin_nativeSeek(
     JNIEnv* env, jobject thiz, jint positionMs) {
   return ffmpeg_seek_to((int64_t)positionMs);
 }
+
+
+JNIEXPORT jlong JNICALL
+Java_com_unotes_uaudio_UAudioPlugin_nativeGetCurrentPosition(JNIEnv* env, jobject thiz) {
+    return (jlong)ffmpeg_get_current_position();
+}
+
